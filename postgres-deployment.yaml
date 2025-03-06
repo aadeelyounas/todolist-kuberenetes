@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      initContainers:
+        - name: init-pg-hba
+          image: busybox:latest
+          command: ['sh', '-c', 'cp /mnt/pg-hba/pg_hba.conf /var/lib/postgresql/data/pg_hba.conf']
+          volumeMounts:
+            - name: pg-hba-volume
+              mountPath: /mnt/pg-hba
+      volumes:
+        - name: pg-hba-volume
+          configMap:
+            name: pg-hba-conf
+      containers:
+        - name: postgres
+          image: postgres:latest # Or your preferred Postgres version
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pg-hba-volume
+              mountPath: /mnt/pg-hba
+          env:
+            - name: POSTGRES_USER
+              value: "postgres" # Change this!
+            - name: POSTGRES_PASSWORD
+              value: "password" # Change this!
+            - name: POSTGRES_DB
+              value: "todos" # Change this!
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
