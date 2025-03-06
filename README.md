@@ -14,7 +14,7 @@ This is a simple ToDo application built with React, Node.js, Express, and Postgr
 1.  Clone the repository:
 
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/aadeelyounas/todolist-kuberenetes.git
     cd ToDo-kube
     ```
 
